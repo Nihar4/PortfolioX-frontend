@@ -16,7 +16,6 @@ import {
 import { useDispatch } from "react-redux";
 
 const ForgotPassword = ({ navigation }) => {
-  // const loading = false;
   const [email, setEmail] = useState("");
 
   const dispatch = useDispatch();
