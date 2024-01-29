@@ -364,7 +364,7 @@ const StockPage = ({ route, navigation }) => {
           `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?region=US&lang=en-US&includePrePost=false&interval=${inter}&range=${range}&corsDomain=finance.yahoo.com&.tsrc=finance`
         );
         const response1 = await axios.get(
-          `https://query1.finance.yahoo.com/v7/finance/options/${symbol}?modules=financialData`
+          `https://query1.finance.yahoo.com/v6/finance/options/${symbol}?modules=financialData`
         );
         const response2 = await axios.get(
           `https://groww.in/v1/api/stocks_data/v1/company/search_id/${id}`
@@ -381,7 +381,7 @@ const StockPage = ({ route, navigation }) => {
           `https://groww.in/v1/api/stocks_company_master/v1/company_news/groww_contract_id/${response2.data.header.growwCompanyId}?page=0&size=100`
         );
         setNews(response3.data.results);
-        // console.log(news);
+        console.log(gdata);
 
         if (chartarr.length !== charttime.length) {
           setError(true);

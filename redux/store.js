@@ -17,6 +17,6 @@ const store = configureStore({
 
 export default store;
 
-// export const server = 'http://192.168.129.109:4000/api/v1';
+// export const server = 'http://192.168.29.109:4000/api/v1';
 export const server = 'https://portfolio-x-backend.vercel.app/api/v1';
 
