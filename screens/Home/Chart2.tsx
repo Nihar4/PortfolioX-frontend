@@ -13,22 +13,22 @@ const ScrollingChartWithPointer = ({ ChartData,color }: any ) => {
   
 const windowWidth=Dimensions.get('window').width;
   var FilteredData = [];
-  const length = ChartData?.timestamp?.length;
+  const length = ChartData?.length;
   var maxValue = -1;
   var minValue = 1e9;
 
   for (let i = 0; i < length; i++) {
-    minValue=Math.min(ChartData.indicators.quote[0].close[i], minValue);
+    minValue=Math.min(ChartData[i][1], minValue);
     // FilteredData.push(obj);
   }
 
 
   for (let i = 0; i < length; i++) {
     var obj = {
-      value: ChartData.indicators.quote[0].close[i] - minValue,
-      date: new Date(ChartData.timestamp[i] * 1000),
+      value: ChartData[i][1] - minValue,
+      date: new Date(ChartData[i][0] * 1000),
     };
-    maxValue = Math.max(ChartData.indicators.quote[0].close[i]-minValue, maxValue);
+    maxValue = Math.max(ChartData[i][1]-minValue, maxValue);
     // minValue=Math.max(ChartData.indicators.quote[0].close[i], minValue);
     FilteredData.push(obj);
   }

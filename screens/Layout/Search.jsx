@@ -5,7 +5,6 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
-  StatusBar,
   TextInput,
   Dimensions,
 } from "react-native";
@@ -24,15 +23,8 @@ const Search = ({ navigation }) => {
     setInputValue(text);
   };
   const renderItem = ({ item }) => {
-    // const symbolWithoutPostfix = item.symbol
-    //   .replace(".NS", "")
-    //   .replace(".BO", "");
-
-    // const exchange = item.symbol.endsWith(".NS") ? "NSE" : "BSE";
-
     const handleStockItemClick = () => {
       navigation.navigate("StockDetail", {
-        symbol: item.symbol,
         id: item.id,
       });
     };
@@ -42,11 +34,7 @@ const Search = ({ navigation }) => {
         <View style={styles.stockItem}>
           <View>
             <Text style={styles.stockName}>{item.name}</Text>
-            {/* <Text style={styles.stockSymbol}>{symbolWithoutPostfix}</Text> */}
           </View>
-          {/* <View>
-            <Text style={styles.exchange}>{exchange}</Text>
-          </View> */}
         </View>
       </TouchableOpacity>
     );
@@ -57,9 +45,8 @@ const Search = ({ navigation }) => {
     const loaddata = async () => {
       try {
         setLoading(true);
-        const url = `https://groww.in/v1/api/search/v1/entity?app=false&page=0&q=${inputValue}&size=100`;
+        const url = `https://groww.in/v1/api/search/v1/entity?app=false&entity_type=stocks&page=0&q=${inputValue}&size=100`;
         const { data } = await axios.get(url);
-        // console.log(data.content);
         let alldata = [];
         const symbolsWithoutPeriod = data.content.filter(
           (symbol) =>
@@ -68,32 +55,11 @@ const Search = ({ navigation }) => {
         );
 
         symbolsWithoutPeriod.forEach((item) => {
-          // if (item.exchange === "NSE") {
           alldata.push({
-            symbol: item.nse_scrip_code + ".NS",
             name: item.title,
             id: item.search_id,
           });
-          // } else if (item.exchange === "BSE") {
-          // alldata.push({ symbol: item.symbol + ".BO", name: "" });
-          // }
         });
-
-        // const updatedAlldata = await Promise.all(
-        //   alldata.map(async (item) => {
-        //     try {
-        //       const s = item.symbol;
-        //       const url = `https://query1.finance.yahoo.com/v7/finance/options/${s}?modules=financialData`;
-        //       const response1 = await axios.get(url);
-        //       const name = response1.data.optionChain.result[0].quote.longName;
-        //       if (name === null || name === undefined) return null;
-        //       item.name = name;
-        //       return item;
-        //     } catch (error) {
-        //       return null;
-        //     }
-        //   })
-        // );
 
         const filteredAlldata = alldata.filter((item) => item !== null);
         setSearchData(filteredAlldata);

@@ -91,13 +91,13 @@ export const profileReducer = createReducer({}, (builder) => {
         })
         .addCase("addToPlaylistRequest", (state) => {
             state.loading = true;
-        })
-        .addCase("getPortfolioRequest", (state) => {
-            state.loading = true;
-        })
-        .addCase("getWatchListRequest", (state) => {
-            state.loading = true;
         });
+    // .addCase("getPortfolioRequest", (state) => {
+    //     state.loading = true;
+    // })
+    // .addCase("getWatchListRequest", (state) => {
+    //     state.loading = true;
+    // });
 
     builder
         .addCase("updateProfileSuccess", (state, action) => {
@@ -127,17 +127,17 @@ export const profileReducer = createReducer({}, (builder) => {
         .addCase("addToPlaylistSuccess", (state, action) => {
             state.loading = false;
             state.message = action.payload;
-        })
-        .addCase("getPortfolioSuccess", (state, action) => {
-            state.portfolio = action.payload;
-            state.loading = false;
-
-        })
-        .addCase("getWatchListSuccess", (state, action) => {
-            state.loading = false;
-            state.watchlist = action.payload;
-
         });
+    // .addCase("getPortfolioSuccess", (state, action) => {
+    //     state.portfolio = action.payload;
+    //     state.loading = false;
+
+    // })
+    // .addCase("getWatchListSuccess", (state, action) => {
+    //     state.loading = false;
+    //     state.watchlist = action.payload;
+
+    // });
     builder
         .addCase("updateProfileFail", (state, action) => {
             state.loading = false;
@@ -166,14 +166,14 @@ export const profileReducer = createReducer({}, (builder) => {
         .addCase("addToPlaylistFail", (state, action) => {
             state.loading = false;
             state.error = action.payload;
-        })
-        .addCase("getPortfolioFail", (state, action) => {
-            state.loading = false;
-            state.error = action.payload;
-        }).addCase("getWatchListFail", (state, action) => {
-            state.loading = false;
-            state.error = action.payload;
         });
+    // .addCase("getPortfolioFail", (state, action) => {
+    //     state.loading = false;
+    //     state.error = action.payload;
+    // }).addCase("getWatchListFail", (state, action) => {
+    //     state.loading = false;
+    //     state.error = action.payload;
+    // });
 
     builder.addCase("clearError", (state) => {
         state.error = null;

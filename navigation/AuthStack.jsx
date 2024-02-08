@@ -29,6 +29,7 @@ import UpdateProfile from "../screens/Profile/UpdateProfile";
 import Reports from "../screens/Profile/Reports";
 import OrderHistory from "../screens/Profile/OrderHistory";
 import Help from "../screens/Profile/Help";
+import DisplayMore from "../screens/Home/DisplayMore";
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -39,6 +40,13 @@ function HomeStack() {
       <Stack.Screen
         name="Home"
         component={Home}
+        options={{
+          header: CustomHeader,
+        }}
+      />
+      <Stack.Screen
+        name="DisplayMore"
+        component={DisplayMore}
         options={{
           header: CustomHeader,
         }}

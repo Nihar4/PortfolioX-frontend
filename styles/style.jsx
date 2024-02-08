@@ -16,7 +16,7 @@ export const colors = {
 export const defaultStyle = StyleSheet.create({
   //   backgroundColor: theme.colors.primary,
   font: "sans-serif",
-  padding: 10,
+  paddingVertical: 10,
   // paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   backgroundColor: colors.bg,
   flex: 1,

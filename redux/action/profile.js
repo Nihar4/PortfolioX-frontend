@@ -142,7 +142,7 @@ export const resetPassword = (otp, password) => async (dispatch) => {
     }
 };
 
-export const addToPlaylist = (name, symbol, id) => async dispatch => {
+export const addToPlaylist = (name, symbol, exchange, code, logo) => async dispatch => {
     try {
         dispatch({ type: 'addToPlaylistRequest' });
 
@@ -157,7 +157,7 @@ export const addToPlaylist = (name, symbol, id) => async dispatch => {
         const { data } = await axios.post(
             `${server}/addtoplaylist`,
             {
-                name, symbol, id
+                name, symbol, exchange, code, logo
             },
             config
         );
@@ -171,7 +171,7 @@ export const addToPlaylist = (name, symbol, id) => async dispatch => {
     }
 };
 
-export const removeFromPlaylist = (name, symbol, id) => async dispatch => {
+export const removeFromPlaylist = (name, symbol, exchange, code) => async dispatch => {
     try {
         dispatch({ type: 'removeFromPlaylistRequest' });
 
@@ -185,7 +185,7 @@ export const removeFromPlaylist = (name, symbol, id) => async dispatch => {
 
         const { data } = await axios.post(
             `${server}/removefromplaylist`,
-            { name, symbol, id },
+            { name, symbol, exchange, code },
             config
         );
 

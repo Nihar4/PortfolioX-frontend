@@ -2,24 +2,23 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { colors, defaultStyle } from "../../styles/style";
 import { ScrollView } from "react-native-gesture-handler";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import axios from "axios";
-import { server } from "../../redux/store";
 import { Dimensions } from "react-native";
 import Loader from "../Layout/Loader";
-import { GetPortfolio } from "../../redux/action/user";
 
 // Get the screen width
 const screenWidth = Dimensions.get("window").width;
 
 const Portfolio = ({ navigation }) => {
-  const dispatch = useDispatch();
   const { message, error, isAuthenticated, user } = useSelector(
     (state) => state.user
   );
-  const { loading, portfolio } = useSelector((state) => state.profile);
 
-  const [stocksData, setStocksData] = useState([]);
+  const { loading } = useSelector((state) => state.profile);
+  const portfolio = user.portfolio;
+
+  const [stocksData, setStocksData] = useState();
 
   const [totalInvested, setTotalInvested] = useState(0);
   const [currentPortfolioValue, setCurrentPortfolioValue] = useState(0);
@@ -27,32 +26,44 @@ const Portfolio = ({ navigation }) => {
   const [profitLossPercentage, setProfitLossPercentage] = useState(0);
 
   useEffect(() => {
-    const loaddata = async () => {
-      if (isAuthenticated) await dispatch(GetPortfolio());
+    const fetchCurrentPrices = async () => {
+      try {
+        const updatedPortfolio = await Promise.all(
+          portfolio.map(async (stock) => {
+            const response = await axios.get(
+              `https://groww.in/v1/api/stocks_data/v1/tr_live_prices/exchange/${stock.exchange}/segment/CASH/${stock.code}/latest`
+            );
+            return {
+              ...stock,
+              currentprice: response.data.ltp.toFixed(2),
+            };
+          })
+        );
+
+        const invested = updatedPortfolio.reduce(
+          (sum, stock) => sum + stock.avgbuyingprice * stock.quantity,
+          0
+        );
+        const portfolioValue = updatedPortfolio.reduce(
+          (sum, stock) => sum + stock.currentprice * stock.quantity,
+          0
+        );
+        const pl = portfolioValue - invested;
+        const plPercentage = ((pl / invested) * 100).toFixed(2);
+
+        setStocksData(updatedPortfolio);
+        setTotalInvested(invested);
+        setCurrentPortfolioValue(portfolioValue);
+        setProfitLoss(pl);
+        setProfitLossPercentage(plPercentage);
+      } catch (error) {
+        console.log("Error fetching current prices:", error);
+      }
     };
-    loaddata();
-  }, [user]);
+    // fetchCurrentPrices();
+    const intervalId = setInterval(fetchCurrentPrices, 1000);
 
-  useEffect(() => {
-    if (portfolio !== undefined) {
-      setStocksData(portfolio);
-
-      const invested = portfolio.reduce(
-        (sum, stock) => sum + stock.avgbuyingprice * stock.quantity,
-        0
-      );
-      const portfolioValue = portfolio.reduce(
-        (sum, stock) => sum + stock.currentprice * stock.quantity,
-        0
-      );
-      const pl = portfolioValue - invested;
-      const plPercentage = ((pl / invested) * 100).toFixed(2);
-
-      setTotalInvested(invested);
-      setCurrentPortfolioValue(portfolioValue);
-      setProfitLoss(pl);
-      setProfitLossPercentage(plPercentage);
-    }
+    return () => clearInterval(intervalId);
   }, [portfolio]);
 
   const handleStockCardClick = (symbol) => {
@@ -215,6 +226,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "black",
     width: screenWidth,
+    paddingHorizontal: 10,
   },
   hedder: {
     fontSize: 30,

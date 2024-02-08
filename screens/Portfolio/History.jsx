@@ -44,39 +44,24 @@ const History = ({ route, navigation }) => {
   const { message, error, isAuthenticated, user } = useSelector(
     (state) => state.user
   );
-
+  const history = user.portfolio;
   const [stocksData, setStocksData] = useState();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    axios
-      .get(`${server}/getportfoliodata`)
-      .then((response) => {
-        const stockSymbol = route.params.symbol;
-        const stock = response.data.logoData.find(
-          (item) => item.symbol === stockSymbol
-        );
-        if (stock) {
-          setStocksData(stock);
-        } else {
-          console.log("Stock not found");
-        }
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.log(
-          "Error in History.jsx",
-          "Failed to fetch stock data",
-          error
-        );
-        setLoading(false);
-      });
+    const stock = history.find((item) => item.symbol === route.params.symbol);
+    if (stock) {
+      setStocksData(stock);
+    } else {
+      console.log("Stock not found");
+    }
+    setLoading(false);
   }, [user, route.params]);
 
   return (
     <>
-      {loading ? (
+      {loading || !stocksData ? (
         <Loader />
       ) : (
         <ScrollView style={styles.container}>

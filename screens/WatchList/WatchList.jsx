@@ -6,84 +6,87 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
-import { GetWatchlist } from "../../redux/action/user";
+import { useSelector } from "react-redux";
 import Loader from "../Layout/Loader";
+import axios from "axios";
+import StockItem from "../Home/StockItem";
+import { defaultStyle } from "../../styles/style";
 
 const WatchList = ({ navigation }) => {
-  const dispatch = useDispatch();
   const { message, error, isAuthenticated, user } = useSelector(
     (state) => state.user
   );
-  const { loading, watchlist } = useSelector((state) => state.profile);
-  const [stocksData, setStocksData] = useState([]);
+  const { loading } = useSelector((state) => state.profile);
+  const [stocksData, setStocksData] = useState();
+  const watchlist = user.watchlist;
 
   useEffect(() => {
-    const loaddata = async () => {
-      if (isAuthenticated) await dispatch(GetWatchlist());
+    const fetchWatchlistData = async () => {
+      try {
+        const updatedWatchlist = await Promise.all(
+          watchlist.map(async (stock) => {
+            const response = await axios.get(
+              `https://groww.in/v1/api/stocks_data/v1/tr_live_prices/exchange/${stock.exchange}/segment/CASH/${stock.code}/latest`
+            );
+            const price = (response.data.ltp + Math.random() * 10 - 5).toFixed(
+              2
+            );
+            const change = (
+              response.data.dayChange +
+              Math.random() * 10 -
+              5
+            ).toFixed(2);
+            const changeperc = (
+              response.data.dayChangePerc +
+              Math.random() * 10 -
+              5
+            ).toFixed(2);
+            return {
+              ...stock,
+              price: price,
+              change: change,
+              changeperc: changeperc,
+            };
+          })
+        );
+        setStocksData(updatedWatchlist);
+      } catch (error) {
+        console.error("Error fetching watchlist data:", error);
+      }
     };
-    loaddata();
-  }, [user]);
-
-  useEffect(() => {
-    if (watchlist !== undefined) {
-      const roundedStocksData = watchlist.map((stock) => ({
-        ...stock,
-        CurrentPrice: stock.CurrentPrice.toFixed(2),
-        regularMarketChangeRS: stock.regularMarketChangeRS.toFixed(2),
-        regularMarketChangePercent: stock.regularMarketChangePercent.toFixed(2),
-      }));
-      setStocksData(roundedStocksData);
-    }
+    fetchWatchlistData();
+    // const intervalId = setInterval(fetchWatchlistData, 1000);
+    // return () => clearInterval(intervalId);
   }, [watchlist]);
 
-  const handleStockClick = (stock) => {
-    navigation.navigate("StockDetail", { symbol: stock.symbol, id: stock.id });
+  const handleStockClick = (symbol) => {
+    navigation.navigate("StockDetail", {
+      id: symbol,
+    });
   };
 
-  return loading ? (
+  return loading || !stocksData ? (
     <Loader />
   ) : (
-    <ScrollView style={styles.container}>
-      <View>
-        <Text style={styles.watchlistHeading}>WatchList</Text>
-
-        {stocksData.length > 0 ? (
-          stocksData.map((stock, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.card}
-              onPress={() => handleStockClick(stock)}
-            >
-              <View style={styles.row}>
-                <View style={[styles.column, styles.nameColumn]}>
-                  <Text style={styles.stockName}>{stock.name}</Text>
-                  <Text style={styles.symbol}>{stock.symbol}</Text>
-                </View>
-                <View style={[styles.column, styles.priceColumn]}>
-                  <Text style={[styles.stockPrice, styles.rightAligned]}>
-                    ₹{stock.CurrentPrice}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.stockChange,
-                      styles.rightAligned,
-                      stock.regularMarketChangeRS >= 0
-                        ? styles.greenText
-                        : styles.redText,
-                    ]}
-                  >
-                    {stock.regularMarketChangeRS > 0 ? "+" : ""}
-                    {stock.regularMarketChangeRS} (
-                    {Math.abs(stock.regularMarketChangePercent)}%)
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))
-        ) : (
-          <Text style={styles.noWatchlistText}>No watchlist available</Text>
-        )}
+    <ScrollView style={defaultStyle}>
+      <View style={styles.container}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>WatchList</Text>
+        </View>
+        {stocksData.map((item, index) => (
+          <StockItem
+            key={index}
+            symbol={item.symbol}
+            name={item.name}
+            price={item.price}
+            changePercentage={item.changeperc}
+            logo={item.logo}
+            exchange={item.exchange}
+            code={item.code}
+            live={true}
+            onPress={() => handleStockClick(item.symbol)}
+          />
+        ))}
       </View>
     </ScrollView>
   );
@@ -91,71 +94,27 @@ const WatchList = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "#121212",
+    backgroundColor: "#1e1e1e", // Dark background color
+    paddingVertical: 12,
+    marginBottom: 16,
+    marginHorizontal: 5,
+    borderRadius: 8, // Add some border radius for a modern look
   },
-  watchlistHeading: {
+  titleContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    paddingHorizontal: 16,
+    marginBottom: 15,
+    alignItems: "center",
+  },
+  title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "white",
-    marginBottom: 30,
+    color: "#fff", // White text color
   },
-  card: {
-    backgroundColor: "#1A1A1A",
-    borderRadius: 10,
-    padding: 20,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "#444",
-    // marginTop: 20,
-  },
-  row: {
-    flexDirection: "row",
-  },
-  stockName: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 5,
-  },
-  stockPrice: {
+  seeMore: {
     fontSize: 16,
-    color: "white",
-  },
-  stockChange: {
-    fontSize: 14,
-    color: "white",
-  },
-  column: {
-    flex: 1,
-    flexDirection: "column",
-  },
-  nameColumn: {
-    flex: 2,
-  },
-  priceColumn: {
-    flex: 1,
-  },
-  rightAligned: {
-    textAlign: "right",
-    color: "#DDD",
-  },
-  redText: {
-    color: "#FF5733",
-  },
-  greenText: {
-    color: "#4CAF50",
-  },
-  symbol: {
-    fontSize: 14,
-    color: "#BBB",
-  },
-  noWatchlistText: {
-    fontSize: 20,
-    color: "white",
-    textAlign: "center",
-    marginTop: 20,
+    color: "#fff", // White text color
   },
 });
 

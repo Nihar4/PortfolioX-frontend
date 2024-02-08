@@ -20,16 +20,11 @@ const Subscribe = ({ route, navigation }) => {
   const stripe = useStripe();
 
   const [key, setKey] = useState("");
-  // const [quantity, setQuantity] = useState(10);
   const [loaderLoading, setLoaderLoading] = useState(false);
   const [quantity, setQuantity] = useState("0");
   const [totalPrice, setTotalPrice] = useState(0);
-  const { name, symbol, avgbuyingprice } = route.params;
+  const { name, symbol, avgbuyingprice, exchange, code } = route.params;
 
-  //   const [loading, setLoading] = useState(false);
-  // const { loading, error, subscriptionId } = useSelector(
-  //   (state) => state.subscription
-  // );
   const { loading, subscriptionId } = useMessageAndErrorSubscription(
     navigation,
     dispatch,
@@ -45,11 +40,12 @@ const Subscribe = ({ route, navigation }) => {
       Toast.show({ type: "error", text1: "Quantity Can Not be 0" });
       return;
     }
-    await dispatch(buySubscription(name, symbol, quantity, avgbuyingprice));
+    await dispatch(
+      buySubscription(name, symbol, quantity, avgbuyingprice, exchange, code)
+    );
   };
 
   const handleQuantityChange = (value) => {
-    // const newQuantity = parseInt(value, 10) || 0;
     const newQuantity = value.replace(/[^0-9]/g, "");
     if (newQuantity === "") setQuantity("0");
     setQuantity(newQuantity);
@@ -57,12 +53,10 @@ const Subscribe = ({ route, navigation }) => {
       parseFloat(Number(newQuantity)) * avgbuyingprice
     ).toFixed(2);
     setTotalPrice(totalPrice);
-    // setTotalPrice(newQuantity * avgbuyingprice);
   };
 
   useEffect(() => {
     const fetchData = async () => {
-      // setQuantity("0");
       if (subscriptionId) {
         const init = await stripe.initPaymentSheet({
           paymentIntentClientSecret: subscriptionId,
@@ -114,7 +108,7 @@ const Subscribe = ({ route, navigation }) => {
       }
     };
 
-    fetchData(); // Call the async function
+    fetchData();
   }, [dispatch, key, subscriptionId]);
 
   useEffect(() => {

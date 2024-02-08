@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { server } from '../store';
 import axios from 'axios';
 
@@ -73,11 +72,11 @@ export const logout = () => async dispatch => {
     }
 };
 
-export const buySubscription = (name, symbol, quantity, avgbuyingprice) => async dispatch => {
+export const buySubscription = (name, symbol, quantity, avgbuyingprice, exchange, code) => async dispatch => {
     try {
         dispatch({ type: 'buySubscriptionRequest' });
 
-        const { data } = await axios.post(`${server}/subscribe`, { name, symbol, quantity, avgbuyingprice }, {
+        const { data } = await axios.post(`${server}/subscribe`, { name, symbol, quantity, avgbuyingprice, exchange, code }, {
             headers: {
                 'Content-type': 'application/json',
             },
@@ -95,11 +94,11 @@ export const buySubscription = (name, symbol, quantity, avgbuyingprice) => async
 };
 
 
-export const sellStock = (symbol, quantity) => async dispatch => {
+export const sellStock = (symbol, quantity, CurrentPrice) => async dispatch => {
     try {
         dispatch({ type: 'cancelSubscriptionRequest' });
 
-        const { data } = await axios.put(`${server}/sellstock`, { symbol, quantity }, {
+        const { data } = await axios.put(`${server}/sellstock`, { symbol, quantity, CurrentPrice }, {
             headers: {
                 'Content-type': 'application/json',
             },
@@ -117,40 +116,4 @@ export const sellStock = (symbol, quantity) => async dispatch => {
     }
 };
 
-export const GetPortfolio = () => async dispatch => {
-    try {
-
-        dispatch({ type: 'getPortfolioRequest' });
-
-        const { data } = await axios.get(
-            `${server}/getportfoliodata`,
-
-            {
-                withCredentials: true,
-            }
-        );
-
-        await dispatch({ type: 'getPortfolioSuccess', payload: data.logoData });
-    } catch (error) {
-        await dispatch({ type: 'getPortfolioFail', payload: error.response.data.message });
-    }
-};
-export const GetWatchlist = () => async dispatch => {
-    try {
-
-        dispatch({ type: 'getWatchListRequest' });
-
-        const { data } = await axios.get(
-            `${server}/getbookmark`,
-
-            {
-                withCredentials: true,
-            }
-        );
-
-        await dispatch({ type: 'getWatchListSuccess', payload: data.logoData });
-    } catch (error) {
-        await dispatch({ type: 'getWatchListFail', payload: error.response.data.message });
-    }
-};
 
