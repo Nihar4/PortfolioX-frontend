@@ -418,7 +418,7 @@ const StockPage = ({ route, navigation }) => {
                 <Text
                   style={[
                     styles.stockChange,
-                    latest.dayChange < 0
+                    changeValue < 0
                       ? styles.negativeChange
                       : styles.positiveChange,
                   ]}
