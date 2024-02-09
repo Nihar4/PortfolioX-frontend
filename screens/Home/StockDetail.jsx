@@ -174,11 +174,11 @@ const StockPage = ({ route, navigation }) => {
         setchangeValue(latest.dayChange);
       }
     }
-    const timeoutId = setTimeout(() => {
-      setrangeLoading(false);
-    }, 1000);
+    // const timeoutId = setTimeout(() => {
+    setrangeLoading(false);
+    // }, 0);
 
-    return () => clearTimeout(timeoutId);
+    // return () => clearTimeout(timeoutId);
   }, [range]);
   const toggleBookmark = async () => {
     if (isAuthenticated) setIsBookmarked(!isBookmarked);
