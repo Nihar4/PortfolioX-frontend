@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Text,
   View,
@@ -32,12 +32,21 @@ const StockPage = ({ route, navigation }) => {
   const [activeTab, setActiveTab] = useState("Overview");
 
   const [loading, setLoading] = useState(true);
+  const [rangeloading, setrangeLoading] = useState(false);
+
   const [Error, setError] = useState(false);
   const [range, setRange] = useState("1d");
   const [exchange, setExchange] = useState(null);
   const [code, setCode] = useState(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [changeValue, setchangeValue] = useState(0);
+  const [changePerc, setchangePerc] = useState(0);
+  const rangeRef = useRef(range);
+  // console.log(range, changePerc, changeValue);
   const { id } = route.params;
+  useEffect(() => {
+    rangeRef.current = range;
+  }, [range]);
 
   const handleTabClick = (tabName) => {
     setActiveTab(tabName);
@@ -48,24 +57,32 @@ const StockPage = ({ route, navigation }) => {
   const loading1 = useMessageAndErrorProfile(navigation, dispatch, null);
   const { isAuthenticated, user } = useSelector((state) => state.user);
 
-  const fetchCoin = useCallback(async (exchange, code) => {
-    try {
-      const response = await axios.get(
-        `https://groww.in/v1/api/stocks_data/v1/tr_live_prices/exchange/${exchange}/segment/CASH/${code}/latest`
-      );
-      setLatest(response.data);
-      const progress =
-        (response.data.ltp - response.data.low) /
-        (response.data.high - response.data.low);
-      setProgress(progress);
-      setError(false);
-    } catch (error) {
-      console.log("error in stockDetail.jsx ", error);
-      setLoading(false);
-      setError(true);
-    }
-  }, []);
-
+  const fetchCoin = useCallback(
+    async (exchange, code) => {
+      try {
+        const response = await axios.get(
+          `https://groww.in/v1/api/stocks_data/v1/tr_live_prices/exchange/${exchange}/segment/CASH/${code}/latest`
+        );
+        setLatest(response.data);
+        const progress =
+          (response.data.ltp - response.data.low) /
+          (response.data.high - response.data.low);
+        setProgress(progress);
+        setError(false);
+        // console.log("here", chart[rangeRef.current]);
+        if (rangeRef.current === "1d") {
+          setchangeValue(response.data.dayChange);
+          setchangePerc(response.data.dayChangePerc);
+        }
+      } catch (error) {
+        console.log("error in stockDetail.jsx ", error);
+        setLoading(false);
+        setError(true);
+      }
+    },
+    [rangeRef.current]
+  );
+  // console.log(rangeRef.current);
   useEffect(() => {
     setLoading(true);
     setError(false);
@@ -99,7 +116,7 @@ const StockPage = ({ route, navigation }) => {
               isNseTradable ? nseScriptCode : bseScriptCode
             }/${postfix}`
           );
-          chartData[range] = chartResponse.data.candles;
+          chartData[range] = chartResponse.data;
         }
 
         const newsResponse = await axios.get(
@@ -131,7 +148,6 @@ const StockPage = ({ route, navigation }) => {
       return () => clearInterval(intervalId);
     }
   }, [route.params, route, exchange, code]);
-
   useEffect(() => {
     SetsellBtn(false);
     setIsBookmarked(false);
@@ -147,9 +163,25 @@ const StockPage = ({ route, navigation }) => {
       });
     }
   }, [route.params, user, isAuthenticated]);
+  useEffect(() => {
+    setrangeLoading(true);
+    if (range != "1d") {
+      setchangePerc(chart[range].changePerc * 100);
+      setchangeValue(chart[range].changeValue);
+    } else {
+      if (latest) {
+        setchangePerc(latest.dayChangePerc);
+        setchangeValue(latest.dayChange);
+      }
+    }
+    const timeoutId = setTimeout(() => {
+      setrangeLoading(false);
+    }, 1000);
 
+    return () => clearTimeout(timeoutId);
+  }, [range]);
   const toggleBookmark = async () => {
-    setIsBookmarked(!isBookmarked);
+    if (isAuthenticated) setIsBookmarked(!isBookmarked);
 
     if (isBookmarked) {
       await dispatch(
@@ -340,7 +372,7 @@ const StockPage = ({ route, navigation }) => {
   if (Error) return <ErrorCom />;
   return (
     <>
-      {loading ? (
+      {loading || rangeloading ? (
         <Loader />
       ) : (
         <View style={[styles.container]}>
@@ -391,19 +423,19 @@ const StockPage = ({ route, navigation }) => {
                       : styles.positiveChange,
                   ]}
                 >
-                  {parseFloat(latest.dayChange || 0).toFixed(2)} (
-                  {latest.dayChangePerc.toFixed(2)}% )
+                  {parseFloat(changeValue || 0).toFixed(2)} (
+                  {changePerc.toFixed(2)}% )
                 </Text>
               </View>
 
               <View style={styles.chartContainer}>
                 <View style={{ flex: 1 }}>
-                  {latest.dayChange < 0 ? (
+                  {changeValue < 0 ? (
                     <Chart2
                       // arr={chartarr}
                       // time={charttime}
                       // chartConfig={chartConfig}
-                      ChartData={chart[range]}
+                      ChartData={chart[range].candles}
                       color="rgb(255, 0, 0)"
                     />
                   ) : (
@@ -411,7 +443,7 @@ const StockPage = ({ route, navigation }) => {
                       // arr={chartarr}
                       // time={charttime}
                       // chartConfig={chartConfig1}
-                      ChartData={chart[range]}
+                      ChartData={chart[range].candles}
                       color="rgb(0, 128, 0)"
                     />
                   )}
