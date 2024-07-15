@@ -94,9 +94,8 @@ const Home = ({ navigation }) => {
   return (
     <ScrollView style={defaultStyle}>
       <View style={styles.container}>
-        <Text>Updated</Text>
         <DisplayStock
-          data={stockInNews.slice(0, 5)}
+          data={stockInNews.slice(0, 6)}
           title={"Popular Stocks"}
           onPress={handleStockItemClick}
           SeeMore={{
@@ -107,7 +106,7 @@ const Home = ({ navigation }) => {
           onPressSeeMore={onPressSeeMore}
         />
         <DisplayStock
-          data={gainerLarge.slice(0, 5)}
+          data={gainerLarge.slice(0, 6)}
           title={"Top Gainer"}
           onPress={handleStockItemClick}
           SeeMore={{
@@ -118,7 +117,7 @@ const Home = ({ navigation }) => {
           onPressSeeMore={onPressSeeMore}
         />
         <DisplayStock
-          data={loserLarge.slice(0, 5)}
+          data={loserLarge.slice(0, 6)}
           title={"Top Looser"}
           onPress={handleStockItemClick}
           SeeMore={{
