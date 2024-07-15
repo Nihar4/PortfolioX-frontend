@@ -94,6 +94,7 @@ const Home = ({ navigation }) => {
   return (
     <ScrollView style={defaultStyle}>
       <View style={styles.container}>
+        <Text>Updated</Text>
         <DisplayStock
           data={stockInNews.slice(0, 5)}
           title={"Popular Stocks"}

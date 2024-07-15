@@ -17,7 +17,7 @@
       "supportsTablet": true
     },
     "androidStatusBar": {
-      "barStyle":"light-content",
+      "barStyle": "light-content",
       "backgroundColor": "#121212",
       "translucent": false
     },
@@ -35,6 +35,12 @@
       "eas": {
         "projectId": "4ccacf5f-52e4-4530-9b39-b87dc3cf918f"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/4ccacf5f-52e4-4530-9b39-b87dc3cf918f"
     }
   }
 }
