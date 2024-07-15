@@ -28,7 +28,7 @@ const Home = ({ navigation }) => {
   const fetchData = async () => {
     try {
       const popularResponse = await axios.get(
-        "https://groww.in/v1/api/stocks_data/v2/explore/list/top?discoveryFilterTypes=STOCKS_IN_NEWS%2CMOST_VALUABLE%2CPOPULAR_STOCKS_MOST_BOUGHT&page=0&size=60"
+        "https://groww.in/v1/api/stocks_data/v2/explore/list/top?discoveryFilterTypes=STOCKS_IN_NEWS%2CMOST_VALUABLE%2CPOPULAR_STOCKS_MOST_BOUGHT&page=0&size=30"
       );
       const gainerLargeResponse = await axios.get(
         "https://groww.in/v1/api/stocks_data/explore/v2/indices/GIDXNIFTY100/market_trends?discovery_filter_types=TOP_GAINERS&size=100"
